@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -16,22 +16,45 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [results, setResults] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [showAll, setShowAll] = useState(false)
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
-
+  const fetchProducts = async (pageNum = 1, query = "") => {
     setSearching(true)
-
     try {
-      const data = await products.search(searchQuery)
-      setResults(data)
+      const data = await products.search(query, pageNum)
+      if (query) {
+        setResults(data)
+      } else {
+        setResults(prev => [...prev, ...data])
+      }
+      setTotalPages(Math.ceil(17820 / 10)) // Total products / items per page
     } catch (error) {
-      console.error('Error searching products:', error)
+      console.error('Error fetching products:', error)
       setResults([])
     } finally {
       setSearching(false)
     }
+  }
+
+  useEffect(() => {
+    fetchProducts(1, searchQuery)
+  }, [searchQuery])
+
+  const handleLoadMore = () => {
+    if (page < totalPages) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchProducts(nextPage, searchQuery)
+    }
+  }
+
+  const handleShowAll = () => {
+    setShowAll(true)
+    setPage(1)
+    setResults([])
+    fetchProducts(1)
   }
 
   return (
@@ -50,7 +73,17 @@ export default function SearchPage() {
           <p className="text-muted-foreground">Search for products by name or brand</p>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-8">
+        <div className="flex gap-2 mb-4">
+          <Button 
+            variant="outline" 
+            onClick={handleShowAll}
+            disabled={showAll}
+          >
+            Show All Products
+          </Button>
+        </div>
+
+        <form onSubmit={(e) => { e.preventDefault(); setShowAll(false); setResults([]); fetchProducts(1, searchQuery) }} className="mb-8">
           <div className="flex gap-2">
             <Input
               type="text"
@@ -66,31 +99,43 @@ export default function SearchPage() {
         </form>
 
         {results.length > 0 ? (
-          <div className="grid gap-4">
-            {results.map((product) => (
-              <Link href={`/product/${product.ean}`} key={product.ean}>
-                <Card className="overflow-hidden transition-colors hover:bg-muted/50">
-                  <CardContent className="p-0">
-                    <div className="flex items-center p-4">
-                      <div className="mr-4">
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={60}
-                          height={60}
-                          className="rounded-md object-contain bg-white"
-                        />
+          <>
+            <div className="grid gap-4">
+              {results.map((product) => (
+                <Link href={`/product/${product.ean}`} key={product.ean}>
+                  <Card className="overflow-hidden transition-colors hover:bg-muted/50">
+                    <CardContent className="p-0">
+                      <div className="flex items-center p-4">
+                        <div className="mr-4">
+                          <Image
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.name}
+                            width={60}
+                            height={60}
+                            className="rounded-md object-contain bg-white"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{product.name}</h3>
+                          <p className="text-sm text-muted-foreground">{product.brand}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{product.name}</h3>
-                        <p className="text-sm text-muted-foreground">{product.brand}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+            {!searchQuery && page < totalPages && (
+              <div className="mt-8 text-center">
+                <Button 
+                  onClick={handleLoadMore}
+                  disabled={searching}
+                >
+                  {searching ? "Loading..." : "Load More"}
+                </Button>
+              </div>
+            )}
+          </>
         ) : searchQuery && !searching ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No products found matching "{searchQuery}"</p>
