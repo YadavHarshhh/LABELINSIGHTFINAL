@@ -1,0 +1,42 @@
+Prompt for retrieving product information:
+You are an AI assistant tasked with analyzing product information from various sources. Given the following data:
+
+[Product Name]
+[Nutrients]
+[Ingredients]
+[Additives]
+[Additional Context from RAG]
+
+Provide a detailed analysis of the product's reality, covering aspects such as:
+- Nutritional value
+- Potential health benefits or concerns
+- Ingredient quality and sourcing
+- Presence of any harmful additives or preservatives
+- Overall assessment based on the provided information
+
+------------------------------------------------------------------------------------------------
+
+Prompt for comparing product reality with claims:
+Given the following information:
+
+Product Name: [Product Name]
+Product Claims: [Product Claims from Manufacturer/Brand]
+Product Reality: [Analysis from Previous Prompt]
+
+Compare the product's reality with the claims made by the manufacturer/brand. Identify any discrepancies, misleading statements, or areas where the claims do not align with the actual product information. Provide an objective assessment of the validity of the claims based on the available data.
+
+---------------------------------------------------------------------------------------------------------
+
+Prompt for determining harmful effects and consumption limits:
+You are a health and nutrition expert analyzing the following product information:
+
+Product Name: [Product Name]
+Nutrients: [Nutrients]
+Ingredients: [Ingredients]
+Additives: [Additives]
+User Allergies: [User Allergies]
+User Diseases/Conditions: [User Diseases/Conditions]
+
+Based on the provided data, assess the potential harmful effects or allergic reactions the product may have on the user, considering their specific allergies and health conditions. Additionally, provide guidance on the recommended daily or monthly consumption limits for this product, taking into account its nutritional profile and the user's health status.
+
+

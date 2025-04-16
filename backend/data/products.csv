@@ -1,0 +1,4 @@
+product_name,ean,ingredients,nutritional_info,brand,category,image_url
+"Coca-Cola Original","5000112637922","Carbonated Water, High Fructose Corn Syrup, Caramel Color, Phosphoric Acid, Natural Flavors, Caffeine","{\"calories\": 140, \"sugar\": 39, \"sodium\": 45, \"protein\": 0, \"fat\": 0, \"carbs\": 39}","Coca-Cola","Beverages","https://example.com/coke.jpg"
+"Whole Wheat Bread","8901058851429","Whole Wheat Flour, Water, Sugar, Yeast, Vegetable Oil, Salt, Emulsifiers","{\"calories\": 80, \"sugar\": 2, \"sodium\": 160, \"protein\": 4, \"fat\": 1, \"carbs\": 15}","Harvest Gold","Bakery","https://example.com/bread.jpg"
+"Organic Honey","8906002025375","100% Organic Honey","{\"calories\": 60, \"sugar\": 17, \"sodium\": 0, \"protein\": 0, \"fat\": 0, \"carbs\": 17}","Nature's Nectar","Natural Foods","https://example.com/honey.jpg" 
