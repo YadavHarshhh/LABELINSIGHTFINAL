@@ -5,14 +5,15 @@ from sqlalchemy.orm import Session
 from datetime import timedelta, datetime
 import os
 from dotenv import load_dotenv
-from typing import List, Optional
+from typing import List, Optional, Dict
 import json
+from pydantic import BaseModel
 
 from database import get_db, engine
 import models, auth
 from models import Base
 from chain import reality_query, compare, consumption
-from vector_store import vectors
+from vector_store import analyze_product, compare_products
 import openfoodfacts
 
 # Create database tables
@@ -32,7 +33,7 @@ app.add_middleware(
 # Initialize vector store
 @app.on_event("startup")
 async def startup_event():
-    print("Vector Store DB is ready")
+    print("Gemini AI is ready")
 
 # Auth endpoints
 @app.post("/token")
@@ -125,7 +126,6 @@ async def get_product(
 async def analyze_product(
     ean: str = Body(...),
     name: str = Body(...),
-    current_user: models.User = Depends(auth.get_current_active_user),
     db: Session = Depends(get_db)
 ):
     product = db.query(models.Product).filter(models.Product.ean == ean).first()
@@ -151,13 +151,14 @@ async def analyze_product(
         additives=""  # Extract from ingredients if needed
     )
     
+    # Since we don't have user preferences, use empty strings for allergies and health conditions
     consumption_result = consumption(
-        title=name,  # Use the provided name
+        title=name,
         ingredients=product.ingredients,
         nutritional=product.nutritional_info,
         additives="",
-        allergies=current_user.allergies or "",
-        diseases=current_user.health_conditions or ""
+        allergies="",
+        diseases=""
     )
     
     analysis = models.Analysis(
@@ -206,5 +207,36 @@ async def get_favorites(
     db: Session = Depends(get_db)
 ):
     return current_user.favorites
+
+class Product(BaseModel):
+    name: str
+    ingredients: str
+
+class ProductComparison(BaseModel):
+    product1: Product
+    product2: Product
+
+@app.post("/analyze")
+async def analyze_product_endpoint(product: Product):
+    try:
+        result = analyze_product(product.name, product.ingredients)
+        return {"analysis": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/compare")
+async def compare_products_endpoint(comparison: ProductComparison):
+    try:
+        result = compare_products(
+            {"name": comparison.product1.name, "ingredients": comparison.product1.ingredients},
+            {"name": comparison.product2.name, "ingredients": comparison.product2.ingredients}
+        )
+        return {"comparison": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 

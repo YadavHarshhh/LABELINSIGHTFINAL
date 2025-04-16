@@ -1,17 +1,56 @@
-from langchain_groq import ChatGroq
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
-from dotenv import load_dotenv
+import google.generativeai as genai
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize LLM without API key for now
-llm = None
+# Configure Gemini
+genai.configure(api_key="AIzaSyBvOIN7GjMXtDdV08mPZp8Y5D2c6NNNYPI")
 
-# Initialize vector store
-def create_vectorDB(directory):
-    return None
+# Initialize the model
+model = genai.GenerativeModel('gemini-2.0-flash')
 
-vectors = create_vectorDB("./data") 
+# Function to analyze product information
+def analyze_product(product_name, ingredients):
+    prompt = f"""
+    Analyze the following product:
+    Name: {product_name}
+    Ingredients: {ingredients}
+    
+    Please provide:
+    1. A brief description of the product
+    2. Key nutritional highlights
+    3. Any potential allergens or concerns
+    4. Overall health rating (1-10)
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error analyzing product: {str(e)}"
+
+# Function to compare products
+def compare_products(product1, product2):
+    prompt = f"""
+    Compare these two products:
+    
+    Product 1:
+    Name: {product1['name']}
+    Ingredients: {product1['ingredients']}
+    
+    Product 2:
+    Name: {product2['name']}
+    Ingredients: {product2['ingredients']}
+    
+    Please provide:
+    1. Key differences in ingredients
+    2. Which product is healthier and why
+    3. Specific recommendations for each product
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error comparing products: {str(e)}" 
