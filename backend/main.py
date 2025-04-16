@@ -84,7 +84,7 @@ async def get_products(
     search: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(models.Product)
+    query = db.query(models.Product).filter(models.Product.ean.isnot(None)).filter(models.Product.ean != '')
     if search:
         query = query.filter(models.Product.name.ilike(f"%{search}%"))
     return query.offset(skip).limit(limit).all()
@@ -102,6 +102,8 @@ async def get_product(
         off_product = openfoodfacts.products.get_product(ean)
         if off_product and off_product.get('status') == 1:
             product_data = off_product['product']
+            # Clean the image URL by trimming whitespace
+            image_url = product_data.get('image_url', '').strip() if product_data.get('image_url') else ''
             product = models.Product(
                 name=product_data.get('product_name', ''),
                 ean=ean,
@@ -109,7 +111,7 @@ async def get_product(
                 nutritional_info=json.dumps(product_data.get('nutriments', {})),
                 brand=product_data.get('brands', ''),
                 category=product_data.get('categories', ''),
-                image_url=product_data.get('image_url', '')
+                image_url=image_url
             )
             db.add(product)
             db.commit()

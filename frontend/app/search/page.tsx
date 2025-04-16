@@ -109,7 +109,7 @@ export default function SearchPage() {
                       <div className="flex items-center p-4">
                         <div className="mr-4">
                           <Image
-                            src={product.image_url || "/placeholder.svg"}
+                            src={(product.image_url?.trim() || "/placeholder.svg")}
                             alt={product.name}
                             width={60}
                             height={60}
