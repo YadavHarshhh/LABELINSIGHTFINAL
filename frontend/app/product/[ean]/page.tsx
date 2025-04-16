@@ -70,9 +70,9 @@ export default function ProductPage() {
       <SiteHeader />
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center mb-6">
-          <Link href="/scan" className="flex items-center text-sm font-medium hover:underline">
+          <Link href="/search" className="flex items-center text-sm font-medium hover:underline">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Scanner
+            Back to Search
           </Link>
         </div>
 

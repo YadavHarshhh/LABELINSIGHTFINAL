@@ -24,6 +24,7 @@ export default function SearchPage() {
     setSearching(true)
     try {
       const data = await products.search(query, pageNum)
+      console.log('Fetched products:', data) // Debug log
       if (query) {
         setResults(data)
       } else {
@@ -102,13 +103,13 @@ export default function SearchPage() {
           <>
             <div className="grid gap-4">
               {results.map((product) => (
-                <Link href={`/product/${product.ean}`} key={product.ean}>
+                <Link href={`/product/${product.ean || ''}`} key={product.id}>
                   <Card className="overflow-hidden transition-colors hover:bg-muted/50">
                     <CardContent className="p-0">
                       <div className="flex items-center p-4">
                         <div className="mr-4">
                           <Image
-                            src={product.image || "/placeholder.svg"}
+                            src={product.image_url || "/placeholder.svg"}
                             alt={product.name}
                             width={60}
                             height={60}
@@ -117,7 +118,8 @@ export default function SearchPage() {
                         </div>
                         <div>
                           <h3 className="font-medium">{product.name}</h3>
-                          <p className="text-sm text-muted-foreground">{product.brand}</p>
+                          <p className="text-sm text-muted-foreground">{product.brand || 'Unknown Brand'}</p>
+                          <p className="text-xs text-muted-foreground">EAN: {product.ean || 'N/A'}</p>
                         </div>
                       </div>
                     </CardContent>
